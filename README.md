@@ -7,8 +7,8 @@ A customizable study environment web app with ambient sounds, note-taking, learn
 - **Frontend**: React 19 + TypeScript + Vite + TailwindCSS v4
 - **Icons**: Lucide React
 - **Routing**: React Router v7
-- **Backend** (planned): Cloudflare Workers + Hono.js
-- **Database** (planned): Cloudflare D1 (SQLite)
+- **Backend**: Cloudflare Pages Functions + Hono.js
+- **Database**: Cloudflare D1 (SQLite)
 - **Storage** (planned): Cloudflare R2
 - **AI** (planned): Cloudflare Workers AI
 
@@ -25,9 +25,11 @@ A customizable study environment web app with ambient sounds, note-taking, learn
 - [x] Learning Outcomes CRUD + CSV import
 - [x] Dashboard with coverage stats, progress bar, and gap feedback
 - [x] LocalStorage persistence for all data
+- [x] Cloudflare D1 backend with Hono.js API (notes + LOs CRUD)
+- [x] API-first store with localStorage fallback
+- [x] D1 migration schema (notes, learning_outcomes, note_lo_links)
 
 ### Planned
-- [ ] Cloudflare D1 backend (replace localStorage)
 - [ ] File upload to R2 (PDF/CSV)
 - [ ] Workers AI: auto-extract LOs from documents
 - [ ] Workers AI: auto-suggest note-to-LO links
@@ -39,7 +41,16 @@ A customizable study environment web app with ambient sounds, note-taking, learn
 
 ```bash
 npm install
+
+# Frontend only (localStorage mode)
 npm run dev
+
+# Full stack with D1 backend (run Vite first, then this)
+npm run dev          # Terminal 1: starts Vite on port 5173
+npm run dev:full     # Terminal 2: wrangler proxies to Vite + provides D1
+
+# Run D1 migration locally
+npm run migrate:local
 ```
 
 ## Project Structure
@@ -48,8 +59,13 @@ npm run dev
 src/
   components/    - Reusable UI components (Layout, AmbiancePlayer, NoteEditor)
   pages/         - Route pages (StudySpace, Notes, LearningOutcomes, Dashboard)
-  store/         - State management hooks (useNotes, useLearningOutcomes, useAmbiance)
+  store/         - State management hooks with API + localStorage fallback
+  lib/           - API client (fetch wrapper for D1 endpoints)
   types/         - TypeScript interfaces
+functions/
+  api/           - Cloudflare Pages Functions (Hono.js API routes)
+migrations/
+  0001_initial.sql - D1 schema (notes, learning_outcomes, note_lo_links)
 public/
   audio/         - Ambiance sound files (to be added)
 ```
@@ -57,3 +73,5 @@ public/
 ## Progress Log
 
 - **2026-02-27**: Phase 1 complete - Full frontend scaffold with all 4 pages, ambiance mixer, note editor with LO linking, coverage dashboard with gap feedback.
+- **2026-02-27**: UI overhaul - Glassmorphism, animated backgrounds, gradient accents, dense layouts.
+- **2026-02-27**: Phase 2 complete - D1 backend with Hono.js API, CRUD for notes and LOs, many-to-many linking, API-first store with localStorage fallback.

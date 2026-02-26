@@ -5,9 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:full": "wrangler pages dev --proxy 5173 --persist-to .wrangler/state",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "migrate:local": "wrangler d1 execute stuproject-db --local --file=migrations/0001_initial.sql --persist-to=.wrangler/state"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.9",

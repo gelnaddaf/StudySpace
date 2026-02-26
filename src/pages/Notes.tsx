@@ -18,15 +18,11 @@ export default function Notes() {
     n.content.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
-  const handleSave = (title: string, content: string, linkedLOs: string[]) => {
+  const handleSave = async (title: string, content: string, linkedLOs: string[]) => {
     if (editingNote) {
-      updateNote(editingNote.id, { title, content, linkedLOs })
+      await updateNote(editingNote.id, { title, content, linkedLOs })
     } else {
-      addNote(title, content)
-      const newNote = notes[notes.length - 1]
-      if (newNote && linkedLOs.length > 0) {
-        updateNote(newNote.id, { linkedLOs })
-      }
+      await addNote(title, content, linkedLOs)
     }
     setEditingNote(null)
     setIsCreating(false)
