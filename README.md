@@ -28,6 +28,7 @@ A customizable study environment web app with ambient sounds, note-taking, learn
 - [x] Cloudflare D1 backend with Hono.js API (notes + LOs CRUD)
 - [x] API-first store with localStorage fallback
 - [x] D1 migration schema (notes, learning_outcomes, note_lo_links)
+- [x] Procedural audio engine (Web Audio API) — all 6 ambient sounds generated in real-time
 
 ### Planned
 - [ ] File upload to R2 (PDF/CSV)
@@ -35,7 +36,6 @@ A customizable study environment web app with ambient sounds, note-taking, learn
 - [ ] Workers AI: auto-suggest note-to-LO links
 - [ ] Workers AI: gap analysis feedback
 - [ ] Deploy to Cloudflare Pages
-- [ ] Audio files for ambiance mixer
 
 ## Getting Started
 
@@ -75,3 +75,4 @@ public/
 - **2026-02-27**: Phase 1 complete - Full frontend scaffold with all 4 pages, ambiance mixer, note editor with LO linking, coverage dashboard with gap feedback.
 - **2026-02-27**: UI overhaul - Glassmorphism, animated backgrounds, gradient accents, dense layouts.
 - **2026-02-27**: Phase 2 complete - D1 backend with Hono.js API, CRUD for notes and LOs, many-to-many linking, API-first store with localStorage fallback.
+- **2026-02-27**: Phase 3 complete - Procedural audio engine using Web Audio API. Brown noise, rain, fireplace, wind, thunder, birds all synthesized in real-time. No audio files needed.

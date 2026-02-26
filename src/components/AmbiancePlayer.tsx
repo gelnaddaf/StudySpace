@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { Waves, CloudRain, Flame, Wind, CloudLightning, Bird, VolumeX, Headphones } from 'lucide-react'
+import { startSound, stopSound, setVolume as setAudioVolume } from '../lib/audioEngine'
 import type { SoundChannel } from '../types'
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
@@ -18,23 +19,24 @@ function SoundSlider({ sound, onVolumeChange, onToggle }: {
   onVolumeChange: (id: string, volume: number) => void
   onToggle: (id: string) => void
 }) {
-  const audioRef = useRef<HTMLAudioElement | null>(null)
   const Icon = iconMap[sound.icon] || Waves
 
+  // Sync audio engine with React state
   useEffect(() => {
-    if (!audioRef.current) {
-      audioRef.current = new Audio(sound.src)
-      audioRef.current.loop = true
-    }
-    const audio = audioRef.current
-    audio.volume = sound.volume
     if (sound.isPlaying && sound.volume > 0) {
-      audio.play().catch(() => {})
+      startSound(sound.id, sound.volume)
     } else {
-      audio.pause()
+      stopSound(sound.id)
     }
-    return () => { audio.pause() }
-  }, [sound.isPlaying, sound.volume, sound.src])
+    return () => { stopSound(sound.id) }
+  }, [sound.isPlaying, sound.id])
+
+  // Update volume smoothly without restarting
+  useEffect(() => {
+    if (sound.isPlaying) {
+      setAudioVolume(sound.id, sound.volume)
+    }
+  }, [sound.volume, sound.isPlaying, sound.id])
 
   return (
     <div className={`group flex items-center gap-3 p-2.5 rounded-xl transition-all duration-300 ${
