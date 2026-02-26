@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Save, X, Link2 } from 'lucide-react'
+import { Save, X, Link2, Check } from 'lucide-react'
 import type { Note, LearningOutcome } from '../types'
 
 interface Props {
@@ -21,89 +21,59 @@ export default function NoteEditor({ note, outcomes, onSave, onCancel }: Props) 
   }
 
   const toggleLO = (loId: string) => {
-    setLinkedLOs(prev =>
-      prev.includes(loId) ? prev.filter(id => id !== loId) : [...prev, loId]
-    )
+    setLinkedLOs(prev => prev.includes(loId) ? prev.filter(id => id !== loId) : [...prev, loId])
   }
 
   return (
-    <div className="flex flex-col h-full bg-dark relative">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[20%] right-[10%] w-[300px] h-[300px] rounded-full bg-purple/[0.03] blur-[80px] animate-float1" />
-      </div>
-
+    <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 glass-strong border-b border-white/[0.04] z-10">
-        <input
-          type="text"
-          placeholder="Note title..."
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="text-lg font-semibold bg-transparent border-none outline-none text-lite placeholder:text-mute flex-1"
-          autoFocus
-        />
-        <div className="flex items-center gap-2 ml-4">
-          <button
-            onClick={() => setShowLOPanel(!showLOPanel)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm transition-all duration-300 ${
-              showLOPanel ? 'bg-gradient-to-r from-purple/20 to-cyan/10 text-purple' : 'text-mute hover:text-dim hover:bg-surface'
-            }`}
-            title="Link Learning Outcomes"
-          >
-            <Link2 size={16} />
-            {linkedLOs.length > 0 && (
-              <span className="text-[10px] font-bold bg-purple text-white w-4 h-4 rounded-full flex items-center justify-center">{linkedLOs.length}</span>
-            )}
-          </button>
-          <button
-            onClick={handleSave}
-            className="flex items-center gap-1.5 px-5 py-2 bg-gradient-to-r from-purple to-cyan text-white text-sm font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-purple/20 hover:shadow-purple/40 hover:scale-[1.02]"
-          >
-            <Save size={14} />
-            Save
-          </button>
-          <button
-            onClick={onCancel}
-            className="p-2 text-mute hover:text-lite hover:bg-surface rounded-xl transition-all duration-200"
-          >
-            <X size={18} />
-          </button>
-        </div>
+      <div className="flex items-center gap-3 px-6 py-3 border-b border-white/[0.03] shrink-0">
+        <input type="text" placeholder="Note title..." value={title} onChange={(e) => setTitle(e.target.value)}
+          className="flex-1 text-lg font-semibold bg-transparent outline-none text-lite placeholder:text-mute" autoFocus />
+        <button onClick={() => setShowLOPanel(!showLOPanel)}
+          className={`btn-ghost !text-[11px] ${showLOPanel ? '!border-purple/20 !text-purplehi' : ''}`}>
+          <Link2 size={13} />
+          {linkedLOs.length > 0 ? `${linkedLOs.length} linked` : 'Link LOs'}
+        </button>
+        <button onClick={handleSave} className="btn-primary"><Save size={13} /> Save</button>
+        <button onClick={onCancel} className="p-2 text-mute hover:text-lite rounded-lg transition-colors"><X size={16} /></button>
       </div>
 
-      <div className="flex flex-1 overflow-hidden relative z-10">
+      <div className="flex flex-1 overflow-hidden">
         {/* Editor */}
         <div className="flex-1 p-6">
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Start writing your notes here... (Markdown supported)"
-            className="w-full h-full bg-transparent border-none outline-none text-lite placeholder:text-mute resize-none text-sm leading-relaxed font-mono"
-          />
+          <textarea value={content} onChange={(e) => setContent(e.target.value)}
+            placeholder="Start writing... (Markdown supported)"
+            className="w-full h-full bg-transparent outline-none text-dim placeholder:text-mute resize-none text-sm leading-relaxed font-mono" />
         </div>
 
-        {/* LO Linking Panel */}
+        {/* LO panel */}
         {showLOPanel && (
-          <div className="w-72 glass-strong border-l border-white/[0.04] p-4 overflow-y-auto animate-slide-up">
-            <h4 className="text-[9px] font-semibold text-mute mb-3 uppercase tracking-[0.2em]">Link to LOs</h4>
+          <div className="w-[260px] border-l border-white/[0.03] p-3 overflow-y-auto bg-dark2/40 anim-fade-in">
+            <p className="text-[10px] font-semibold text-mute uppercase tracking-wider mb-2 px-1">Link Outcomes</p>
             {outcomes.length === 0 ? (
-              <p className="text-xs text-mute">No learning outcomes added yet.</p>
+              <p className="text-[11px] text-mute px-1">No outcomes yet.</p>
             ) : (
-              <div className="space-y-2">
-                {outcomes.map(lo => (
-                  <button
-                    key={lo.id}
-                    onClick={() => toggleLO(lo.id)}
-                    className={`w-full text-left p-3 rounded-xl text-xs transition-all duration-300 ${
-                      linkedLOs.includes(lo.id)
-                        ? 'glass text-lite ring-1 ring-purple/30'
-                        : 'text-dim hover:bg-white/[0.03]'
-                    }`}
-                  >
-                    <span className={`font-semibold ${linkedLOs.includes(lo.id) ? 'text-purple' : ''}`}>{lo.code}</span>
-                    <p className="mt-1 text-mute line-clamp-2">{lo.description}</p>
-                  </button>
-                ))}
+              <div className="space-y-1">
+                {outcomes.map(lo => {
+                  const linked = linkedLOs.includes(lo.id)
+                  return (
+                    <button key={lo.id} onClick={() => toggleLO(lo.id)}
+                      className={`w-full text-left p-2.5 rounded-xl text-[12px] transition-all duration-200 flex items-start gap-2 ${
+                        linked ? 'bg-purple/[0.08] border border-purple/15' : 'hover:bg-white/[0.025] border border-transparent'
+                      }`}>
+                      <div className={`w-4 h-4 rounded shrink-0 mt-0.5 flex items-center justify-center transition-colors ${
+                        linked ? 'bg-purple text-white' : 'border border-edge'
+                      }`}>
+                        {linked && <Check size={10} />}
+                      </div>
+                      <div className="min-w-0">
+                        <span className={`font-semibold ${linked ? 'text-purplehi' : 'text-dim'}`}>{lo.code}</span>
+                        <p className="text-mute text-[10px] line-clamp-2 mt-0.5">{lo.description}</p>
+                      </div>
+                    </button>
+                  )
+                })}
               </div>
             )}
           </div>
