@@ -27,9 +27,13 @@ export default function NoteEditor({ note, outcomes, onSave, onCancel }: Props) 
   }
 
   return (
-    <div className="flex flex-col h-full bg-dark">
+    <div className="flex flex-col h-full bg-dark relative">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[20%] right-[10%] w-[300px] h-[300px] rounded-full bg-purple/[0.03] blur-[80px] animate-float1" />
+      </div>
+
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-edge bg-dark2">
+      <div className="flex items-center justify-between px-6 py-4 glass-strong border-b border-white/[0.04] z-10">
         <input
           type="text"
           placeholder="Note title..."
@@ -41,33 +45,33 @@ export default function NoteEditor({ note, outcomes, onSave, onCancel }: Props) 
         <div className="flex items-center gap-2 ml-4">
           <button
             onClick={() => setShowLOPanel(!showLOPanel)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
-              showLOPanel ? 'bg-purple/15 text-purple' : 'text-mute hover:text-dim hover:bg-surface'
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm transition-all duration-300 ${
+              showLOPanel ? 'bg-gradient-to-r from-purple/20 to-cyan/10 text-purple' : 'text-mute hover:text-dim hover:bg-surface'
             }`}
             title="Link Learning Outcomes"
           >
             <Link2 size={16} />
             {linkedLOs.length > 0 && (
-              <span className="text-xs font-medium">{linkedLOs.length}</span>
+              <span className="text-[10px] font-bold bg-purple text-white w-4 h-4 rounded-full flex items-center justify-center">{linkedLOs.length}</span>
             )}
           </button>
           <button
             onClick={handleSave}
-            className="flex items-center gap-1.5 px-4 py-2 bg-purple hover:bg-purplehi text-white text-sm font-medium rounded-lg transition-all duration-200 shadow-sm shadow-purple/20"
+            className="flex items-center gap-1.5 px-5 py-2 bg-gradient-to-r from-purple to-cyan text-white text-sm font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-purple/20 hover:shadow-purple/40 hover:scale-[1.02]"
           >
             <Save size={14} />
             Save
           </button>
           <button
             onClick={onCancel}
-            className="p-2 text-mute hover:text-dim hover:bg-surface rounded-lg transition-colors"
+            className="p-2 text-mute hover:text-lite hover:bg-surface rounded-xl transition-all duration-200"
           >
             <X size={18} />
           </button>
         </div>
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative z-10">
         {/* Editor */}
         <div className="flex-1 p-6">
           <textarea
@@ -80,8 +84,8 @@ export default function NoteEditor({ note, outcomes, onSave, onCancel }: Props) 
 
         {/* LO Linking Panel */}
         {showLOPanel && (
-          <div className="w-72 border-l border-edge bg-dark2 p-4 overflow-y-auto">
-            <h4 className="text-xs font-semibold text-dim mb-3 uppercase tracking-widest">Link to LOs</h4>
+          <div className="w-72 glass-strong border-l border-white/[0.04] p-4 overflow-y-auto animate-slide-up">
+            <h4 className="text-[9px] font-semibold text-mute mb-3 uppercase tracking-[0.2em]">Link to LOs</h4>
             {outcomes.length === 0 ? (
               <p className="text-xs text-mute">No learning outcomes added yet.</p>
             ) : (
@@ -90,13 +94,13 @@ export default function NoteEditor({ note, outcomes, onSave, onCancel }: Props) 
                   <button
                     key={lo.id}
                     onClick={() => toggleLO(lo.id)}
-                    className={`w-full text-left p-3 rounded-xl border text-xs transition-all duration-200 ${
+                    className={`w-full text-left p-3 rounded-xl text-xs transition-all duration-300 ${
                       linkedLOs.includes(lo.id)
-                        ? 'border-purple bg-purple/10 text-purple'
-                        : 'border-edge text-dim hover:border-edgelit hover:bg-surface'
+                        ? 'glass text-lite ring-1 ring-purple/30'
+                        : 'text-dim hover:bg-white/[0.03]'
                     }`}
                   >
-                    <span className="font-semibold">{lo.code}</span>
+                    <span className={`font-semibold ${linkedLOs.includes(lo.id) ? 'text-purple' : ''}`}>{lo.code}</span>
                     <p className="mt-1 text-mute line-clamp-2">{lo.description}</p>
                   </button>
                 ))}

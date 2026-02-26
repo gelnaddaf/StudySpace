@@ -27,164 +27,146 @@ export default function Dashboard() {
   }, [coverage, notes, outcomes])
 
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="p-8 max-w-5xl mx-auto space-y-6">
+    <div className="h-full overflow-y-auto relative">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[10%] right-[20%] w-[400px] h-[400px] rounded-full bg-amber/[0.03] blur-[100px] animate-float1" />
+        <div className="absolute bottom-[20%] left-[10%] w-[300px] h-[300px] rounded-full bg-pink/[0.03] blur-[80px] animate-float2" />
+      </div>
+
+      <div className="relative z-10 p-6 space-y-5">
         {/* Header */}
-        <div>
-          <h2 className="text-xl font-bold text-lite">Dashboard</h2>
-          <p className="text-xs text-mute mt-1">Track your study progress and coverage</p>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber to-pink flex items-center justify-center shadow-lg shadow-amber/20">
+            <BarChart3 size={15} className="text-white" />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-lite">Dashboard</h2>
+            <p className="text-[10px] text-mute">Track your study progress and coverage</p>
+          </div>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-4 gap-4">
-          <div className="bg-card border border-edge rounded-2xl p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-lg bg-purple/15 flex items-center justify-center">
-                <FileText size={14} className="text-purple" />
+          {[
+            { label: 'Notes', value: stats.totalNotes, icon: FileText, gradient: 'from-purple to-cyan' },
+            { label: 'LOs', value: outcomes.length, icon: Target, gradient: 'from-cyan to-green' },
+            { label: 'Coverage', value: `${stats.coveragePercent}%`, icon: TrendingUp, gradient: 'from-green to-cyan' },
+            { label: 'Gaps', value: stats.uncovered, icon: AlertTriangle, gradient: 'from-red to-amber' },
+          ].map((stat, i) => (
+            <div key={stat.label} className="glass rounded-2xl p-5 animate-slide-up group hover:bg-white/[0.03] transition-all duration-300"
+              style={{ animationDelay: `${i * 0.05}s` }}>
+              <div className="flex items-center gap-2 mb-3">
+                <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-md shadow-purple/10 group-hover:scale-110 transition-transform duration-300`}>
+                  <stat.icon size={14} className="text-white" />
+                </div>
+                <span className="text-[9px] text-mute uppercase tracking-[0.2em]">{stat.label}</span>
               </div>
-              <span className="text-[10px] text-mute uppercase tracking-widest">Notes</span>
+              <p className="text-3xl font-bold bg-gradient-to-b from-lite to-dim bg-clip-text text-transparent">{stat.value}</p>
             </div>
-            <p className="text-3xl font-bold text-lite">{stats.totalNotes}</p>
-          </div>
-          <div className="bg-card border border-edge rounded-2xl p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-lg bg-purple/15 flex items-center justify-center">
-                <Target size={14} className="text-purple" />
-              </div>
-              <span className="text-[10px] text-mute uppercase tracking-widest">LOs</span>
-            </div>
-            <p className="text-3xl font-bold text-lite">{outcomes.length}</p>
-          </div>
-          <div className="bg-card border border-edge rounded-2xl p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-lg bg-green/15 flex items-center justify-center">
-                <TrendingUp size={14} className="text-green" />
-              </div>
-              <span className="text-[10px] text-mute uppercase tracking-widest">Coverage</span>
-            </div>
-            <p className="text-3xl font-bold text-lite">{stats.coveragePercent}%</p>
-          </div>
-          <div className="bg-card border border-edge rounded-2xl p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-7 h-7 rounded-lg bg-red/15 flex items-center justify-center">
-                <AlertTriangle size={14} className="text-red" />
-              </div>
-              <span className="text-[10px] text-mute uppercase tracking-widest">Gaps</span>
-            </div>
-            <p className="text-3xl font-bold text-lite">{stats.uncovered}</p>
-          </div>
+          ))}
         </div>
 
-        {/* Coverage Bar */}
-        {outcomes.length > 0 && (
-          <div className="bg-card border border-edge rounded-2xl p-5">
-            <h3 className="text-xs font-semibold text-dim mb-4 flex items-center gap-2 uppercase tracking-widest">
-              <BarChart3 size={14} />
-              Overall Coverage
-            </h3>
-            <div className="w-full h-3 bg-surface rounded-full overflow-hidden flex">
-              <div
-                className="bg-green h-full transition-all duration-500"
-                style={{ width: `${outcomes.length > 0 ? (stats.covered / outcomes.length) * 100 : 0}%` }}
-              />
-              <div
-                className="bg-amber h-full transition-all duration-500"
-                style={{ width: `${outcomes.length > 0 ? (stats.partial / outcomes.length) * 100 : 0}%` }}
-              />
-              <div
-                className="bg-red/40 h-full transition-all duration-500"
-                style={{ width: `${outcomes.length > 0 ? (stats.uncovered / outcomes.length) * 100 : 0}%` }}
-              />
-            </div>
-            <div className="flex items-center gap-6 mt-3">
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-green" />
-                <span className="text-xs text-dim">Covered ({stats.covered})</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-amber" />
-                <span className="text-xs text-dim">Partial ({stats.partial})</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-red/50" />
-                <span className="text-xs text-dim">Uncovered ({stats.uncovered})</span>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Coverage Bar + Breakdown side by side */}
+        <div className="flex gap-5">
+          {/* Coverage Bar */}
+          <div className="flex-1 glass rounded-2xl p-5 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+            <p className="text-[9px] font-semibold text-mute mb-4 uppercase tracking-[0.2em]">Overall Coverage</p>
+            {outcomes.length > 0 ? (
+              <>
+                <div className="w-full h-3 bg-surface rounded-full overflow-hidden flex">
+                  <div className="bg-gradient-to-r from-green to-cyan h-full transition-all duration-700"
+                    style={{ width: `${(stats.covered / outcomes.length) * 100}%` }} />
+                  <div className="bg-amber h-full transition-all duration-700"
+                    style={{ width: `${(stats.partial / outcomes.length) * 100}%` }} />
+                  <div className="bg-red/40 h-full transition-all duration-700"
+                    style={{ width: `${(stats.uncovered / outcomes.length) * 100}%` }} />
+                </div>
+                <div className="flex items-center gap-5 mt-3">
+                  {[
+                    { label: 'Covered', count: stats.covered, color: 'bg-green', glow: 'shadow-green/40' },
+                    { label: 'Partial', count: stats.partial, color: 'bg-amber', glow: 'shadow-amber/40' },
+                    { label: 'Uncovered', count: stats.uncovered, color: 'bg-red', glow: 'shadow-red/40' },
+                  ].map(item => (
+                    <div key={item.label} className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${item.color} shadow-sm ${item.glow}`} />
+                      <span className="text-[11px] text-dim">{item.label} ({item.count})</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <p className="text-xs text-mute">Add learning outcomes to see coverage</p>
+            )}
 
-        {/* Coverage Breakdown */}
-        <div className="bg-card border border-edge rounded-2xl p-5">
-          <h3 className="text-xs font-semibold text-dim mb-4 uppercase tracking-widest">LO Coverage Breakdown</h3>
-          {coverage.length === 0 ? (
-            <div className="text-center py-10">
-              <Target size={40} className="mx-auto text-mute mb-3 opacity-30" />
-              <p className="text-sm text-mute">Add learning outcomes and link notes to see coverage</p>
-            </div>
-          ) : (
-            <div className="space-y-1">
-              {coverage.map(item => (
-                <div key={item.loId} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-surface transition-all duration-200">
-                  <div className={`w-2 h-2 rounded-full shrink-0 ${
-                    item.status === 'covered' ? 'bg-green' :
-                    item.status === 'partial' ? 'bg-amber' : 'bg-red'
-                  }`} />
-                  <span className="text-sm font-semibold text-purple w-16 shrink-0">{item.loCode}</span>
-                  <p className="text-sm text-dim flex-1 truncate">{item.loDescription}</p>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {item.status === 'covered' ? (
-                      <CheckCircle2 size={13} className="text-green" />
-                    ) : (
-                      <AlertTriangle size={13} className={item.status === 'partial' ? 'text-amber' : 'text-red'} />
-                    )}
-                    <span className="text-[10px] text-mute tabular-nums">{item.noteCount} note{item.noteCount !== 1 ? 's' : ''}</span>
+            {/* Alerts inline */}
+            {stats.uncovered > 0 && (
+              <div className="mt-5 p-4 bg-red/[0.05] rounded-xl border border-red/10">
+                <p className="text-[9px] font-semibold text-red mb-2 uppercase tracking-[0.2em] flex items-center gap-1.5">
+                  <AlertTriangle size={11} /> Attention Needed
+                </p>
+                <div className="space-y-1">
+                  {coverage.filter(c => c.status === 'uncovered').map(item => (
+                    <p key={item.loId} className="text-xs text-dim">
+                      <span className="text-red font-semibold">{item.loCode}</span>
+                      <span className="text-mute"> — </span>{item.loDescription}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            )}
+            {stats.partial > 0 && (
+              <div className="mt-3 p-4 bg-amber/[0.05] rounded-xl border border-amber/10">
+                <p className="text-[9px] font-semibold text-amber mb-2 uppercase tracking-[0.2em] flex items-center gap-1.5">
+                  <AlertTriangle size={11} /> Needs More Coverage
+                </p>
+                <div className="space-y-1">
+                  {coverage.filter(c => c.status === 'partial').map(item => (
+                    <p key={item.loId} className="text-xs text-dim">
+                      <span className="text-amber font-semibold">{item.loCode}</span>
+                      <span className="text-mute"> — </span>{item.loDescription}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* LO Breakdown */}
+          <div className="w-[380px] shrink-0 glass rounded-2xl p-5 animate-slide-up" style={{ animationDelay: '0.25s' }}>
+            <p className="text-[9px] font-semibold text-mute mb-3 uppercase tracking-[0.2em]">LO Breakdown</p>
+            {coverage.length === 0 ? (
+              <div className="text-center py-8">
+                <div className="w-12 h-12 rounded-2xl bg-surface mx-auto flex items-center justify-center mb-3">
+                  <Target size={20} className="text-mute opacity-30" />
+                </div>
+                <p className="text-xs text-mute">Add LOs and link notes</p>
+              </div>
+            ) : (
+              <div className="space-y-0.5 max-h-[400px] overflow-y-auto">
+                {coverage.map((item, i) => (
+                  <div key={item.loId}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-white/[0.03] transition-all duration-200 animate-slide-up"
+                    style={{ animationDelay: `${0.3 + i * 0.03}s` }}>
+                    <div className={`w-2 h-2 rounded-full shrink-0 ${
+                      item.status === 'covered' ? 'bg-green shadow-sm shadow-green/40' :
+                      item.status === 'partial' ? 'bg-amber shadow-sm shadow-amber/40' : 'bg-red shadow-sm shadow-red/40'
+                    }`} />
+                    <span className="text-xs font-bold bg-gradient-to-r from-purple to-cyan bg-clip-text text-transparent w-14 shrink-0">{item.loCode}</span>
+                    <p className="text-xs text-dim flex-1 truncate">{item.loDescription}</p>
+                    <div className="flex items-center gap-1 shrink-0">
+                      {item.status === 'covered' ? (
+                        <CheckCircle2 size={12} className="text-green" />
+                      ) : (
+                        <AlertTriangle size={12} className={item.status === 'partial' ? 'text-amber' : 'text-red'} />
+                      )}
+                      <span className="text-[10px] text-mute tabular-nums font-mono">{item.noteCount}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-
-        {/* Feedback Alerts */}
-        {stats.uncovered > 0 && (
-          <div className="bg-red/5 border border-red/15 rounded-2xl p-5">
-            <h3 className="text-xs font-semibold text-red mb-2 flex items-center gap-2 uppercase tracking-widest">
-              <AlertTriangle size={14} />
-              Attention Needed
-            </h3>
-            <p className="text-sm text-dim mb-3">
-              {stats.uncovered} learning outcome{stats.uncovered !== 1 ? 's' : ''} with no linked notes:
-            </p>
-            <div className="space-y-1.5">
-              {coverage.filter(c => c.status === 'uncovered').map(item => (
-                <div key={item.loId} className="text-sm text-dim">
-                  <span className="text-red font-semibold">{item.loCode}</span>
-                  <span className="text-mute"> — </span>{item.loDescription}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {stats.partial > 0 && (
-          <div className="bg-amber/5 border border-amber/15 rounded-2xl p-5">
-            <h3 className="text-xs font-semibold text-amber mb-2 flex items-center gap-2 uppercase tracking-widest">
-              <AlertTriangle size={14} />
-              Needs More Coverage
-            </h3>
-            <p className="text-sm text-dim mb-3">
-              These LOs only have 1 linked note — consider expanding:
-            </p>
-            <div className="space-y-1.5">
-              {coverage.filter(c => c.status === 'partial').map(item => (
-                <div key={item.loId} className="text-sm text-dim">
-                  <span className="text-amber font-semibold">{item.loCode}</span>
-                  <span className="text-mute"> — </span>{item.loDescription}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   )

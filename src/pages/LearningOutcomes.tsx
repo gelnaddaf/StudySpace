@@ -53,106 +53,89 @@ export default function LearningOutcomes() {
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col relative">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute bottom-[20%] left-[10%] w-[350px] h-[350px] rounded-full bg-cyan/[0.03] blur-[90px] animate-float1" />
+      </div>
+
       {/* Header */}
-      <div className="px-6 py-5 border-b border-edge bg-dark2">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-xl font-bold text-lite">Learning Outcomes</h2>
-            <p className="text-xs text-mute mt-1">{outcomes.length} outcome{outcomes.length !== 1 ? 's' : ''} tracked</p>
+      <div className="px-6 py-4 glass-strong border-b border-white/[0.04] z-10">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan to-green flex items-center justify-center shadow-lg shadow-cyan/20">
+              <Target size={15} className="text-white" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-lite">Learning Outcomes</h2>
+              <p className="text-[10px] text-mute">{outcomes.length} outcome{outcomes.length !== 1 ? 's' : ''} tracked</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <input type="file" ref={fileInputRef} accept=".csv" onChange={handleCSVUpload} className="hidden" />
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-2 px-4 py-2 border border-edge text-dim hover:text-lite hover:bg-surface text-sm font-medium rounded-xl transition-all duration-200"
-            >
-              <Upload size={16} />
-              Import CSV
+            <button onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-2 px-3.5 py-2 glass text-dim hover:text-lite text-sm font-medium rounded-xl transition-all duration-200 hover:bg-white/[0.04]">
+              <Upload size={14} /> Import CSV
             </button>
-            <button
-              onClick={() => setShowAddForm(!showAddForm)}
-              className="flex items-center gap-2 px-4 py-2 bg-purple hover:bg-purplehi text-white text-sm font-medium rounded-xl transition-all duration-200 shadow-sm shadow-purple/20"
-            >
-              <Plus size={16} />
-              Add LO
+            <button onClick={() => setShowAddForm(!showAddForm)}
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-cyan to-green text-white text-sm font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-cyan/20 hover:shadow-cyan/40 hover:scale-[1.02]">
+              <Plus size={15} /> Add LO
             </button>
           </div>
         </div>
         <div className="relative">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-mute" />
-          <input
-            type="text"
-            placeholder="Search learning outcomes..."
-            value={searchQuery}
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-mute" />
+          <input type="text" placeholder="Search learning outcomes..." value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 bg-dark border border-edge rounded-xl text-sm text-lite placeholder:text-mute outline-none focus:border-purple/50 transition-colors"
-          />
+            className="w-full pl-9 pr-4 py-2 glass rounded-xl text-sm text-lite placeholder:text-mute outline-none focus:ring-1 focus:ring-cyan/30 transition-all" />
         </div>
       </div>
 
       {/* Add Form */}
       {showAddForm && (
-        <div className="px-6 py-5 border-b border-edge bg-dark3">
-          <h3 className="text-xs font-semibold text-dim mb-3 uppercase tracking-widest">Add Learning Outcome</h3>
+        <div className="px-6 py-5 glass-strong border-b border-white/[0.04] z-10 animate-slide-up">
+          <p className="text-[9px] font-semibold text-mute mb-3 uppercase tracking-[0.2em]">Add Learning Outcome</p>
           <div className="grid grid-cols-3 gap-3 mb-3">
-            <input
-              type="text"
-              placeholder="Code (e.g. LO1.1)"
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              className="px-3 py-2.5 bg-dark border border-edge rounded-xl text-sm text-lite placeholder:text-mute outline-none focus:border-purple/50"
-            />
-            <input
-              type="text"
-              placeholder="Subject name"
-              value={subjectName}
-              onChange={(e) => setSubjectName(e.target.value)}
-              className="px-3 py-2.5 bg-dark border border-edge rounded-xl text-sm text-lite placeholder:text-mute outline-none focus:border-purple/50"
-            />
-            <button
-              onClick={handleAdd}
-              className="px-4 py-2.5 bg-purple hover:bg-purplehi text-white text-sm font-medium rounded-xl transition-all duration-200"
-            >
+            <input type="text" placeholder="Code (e.g. LO1.1)" value={code} onChange={(e) => setCode(e.target.value)}
+              className="px-3 py-2.5 glass rounded-xl text-sm text-lite placeholder:text-mute outline-none focus:ring-1 focus:ring-cyan/30" />
+            <input type="text" placeholder="Subject name" value={subjectName} onChange={(e) => setSubjectName(e.target.value)}
+              className="px-3 py-2.5 glass rounded-xl text-sm text-lite placeholder:text-mute outline-none focus:ring-1 focus:ring-cyan/30" />
+            <button onClick={handleAdd}
+              className="px-4 py-2.5 bg-gradient-to-r from-cyan to-green text-white text-sm font-semibold rounded-xl transition-all duration-200 hover:scale-[1.02]">
               Add
             </button>
           </div>
-          <textarea
-            placeholder="Description of the learning outcome..."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={2}
-            className="w-full px-3 py-2.5 bg-dark border border-edge rounded-xl text-sm text-lite placeholder:text-mute outline-none focus:border-purple/50 resize-none"
-          />
+          <textarea placeholder="Description of the learning outcome..." value={description} onChange={(e) => setDescription(e.target.value)} rows={2}
+            className="w-full px-3 py-2.5 glass rounded-xl text-sm text-lite placeholder:text-mute outline-none focus:ring-1 focus:ring-cyan/30 resize-none" />
           <p className="text-[10px] text-mute mt-2">CSV format: code, description, subject_name (one per line)</p>
         </div>
       )}
 
       {/* Outcomes List */}
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="flex-1 overflow-y-auto p-6 z-10">
         {filteredOutcomes.length === 0 ? (
           <div className="text-center py-16">
-            <Target size={48} className="mx-auto text-mute mb-3 opacity-30" />
-            <p className="text-sm text-mute">No learning outcomes yet</p>
-            <p className="text-xs text-mute mt-1">Add them manually or import from CSV</p>
+            <div className="w-16 h-16 rounded-2xl bg-surface mx-auto flex items-center justify-center mb-4">
+              <Target size={28} className="text-mute opacity-30" />
+            </div>
+            <p className="text-sm text-dim">No learning outcomes yet</p>
+            <p className="text-[10px] text-mute mt-1">Add them manually or import from CSV</p>
           </div>
         ) : (
           <div className="space-y-2 max-w-4xl">
-            {filteredOutcomes.map(lo => {
+            {filteredOutcomes.map((lo, i) => {
               const noteCount = getLinkedNotesCount(lo.id)
+              const statusColor = noteCount >= 2 ? 'bg-green' : noteCount === 1 ? 'bg-amber' : 'bg-red'
+              const statusGlow = noteCount >= 2 ? 'shadow-green/40' : noteCount === 1 ? 'shadow-amber/40' : 'shadow-red/40'
               return (
-                <div
-                  key={lo.id}
-                  className="flex items-start gap-4 p-4 bg-card border border-edge rounded-xl hover:border-edgelit transition-all duration-200"
-                >
-                  <div className={`mt-1 w-2.5 h-2.5 rounded-full shrink-0 ${
-                    noteCount >= 2 ? 'bg-green' : noteCount === 1 ? 'bg-amber' : 'bg-red'
-                  }`} />
+                <div key={lo.id}
+                  className="group flex items-start gap-4 p-4 glass rounded-xl hover:bg-white/[0.03] transition-all duration-300 animate-slide-up"
+                  style={{ animationDelay: `${i * 0.03}s` }}>
+                  <div className={`mt-1.5 w-2.5 h-2.5 rounded-full shrink-0 ${statusColor} shadow-md ${statusGlow}`} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm font-semibold text-purple">{lo.code}</span>
+                      <span className="text-sm font-bold bg-gradient-to-r from-purple to-cyan bg-clip-text text-transparent">{lo.code}</span>
                       {lo.subjectName && (
-                        <span className="text-[10px] px-2 py-0.5 bg-surface text-mute rounded-md">{lo.subjectName}</span>
+                        <span className="text-[10px] px-2 py-0.5 glass text-mute rounded-md">{lo.subjectName}</span>
                       )}
                     </div>
                     <p className="text-sm text-dim leading-relaxed">{lo.description}</p>
@@ -161,10 +144,8 @@ export default function LearningOutcomes() {
                       {noteCount} linked note{noteCount !== 1 ? 's' : ''}
                     </div>
                   </div>
-                  <button
-                    onClick={() => deleteLO(lo.id)}
-                    className="p-2 text-mute hover:text-red hover:bg-surface rounded-lg transition-colors shrink-0"
-                  >
+                  <button onClick={() => deleteLO(lo.id)}
+                    className="p-2 text-mute hover:text-red hover:bg-red/10 rounded-xl transition-all duration-200 opacity-0 group-hover:opacity-100 shrink-0">
                     <Trash2 size={14} />
                   </button>
                 </div>
