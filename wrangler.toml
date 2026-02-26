@@ -7,11 +7,9 @@ binding = "DB"
 database_name = "stuproject-db"
 database_id = ""
 
-# R2 and KV will be added when needed
-# [[r2_buckets]]
-# binding = "BUCKET"
-# bucket_name = "stuproject-uploads"
-#
-# [[kv_namespaces]]
-# binding = "KV"
-# id = ""
+[[r2_buckets]]
+binding = "BUCKET"
+bucket_name = "stuproject-uploads"
+
+[ai]
+binding = "AI"

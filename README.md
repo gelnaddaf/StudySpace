@@ -9,8 +9,9 @@ A customizable study environment web app with ambient sounds, note-taking, learn
 - **Routing**: React Router v7
 - **Backend**: Cloudflare Pages Functions + Hono.js
 - **Database**: Cloudflare D1 (SQLite)
-- **Storage** (planned): Cloudflare R2
-- **AI** (planned): Cloudflare Workers AI
+- **Storage**: Cloudflare R2 (file uploads)
+- **AI**: Cloudflare Workers AI (Llama 3.1 8B)
+- **Audio**: Real ambient MP3s from Internet Archive (CC0)
 
 ## Features
 
@@ -28,14 +29,14 @@ A customizable study environment web app with ambient sounds, note-taking, learn
 - [x] Cloudflare D1 backend with Hono.js API (notes + LOs CRUD)
 - [x] API-first store with localStorage fallback
 - [x] D1 migration schema (notes, learning_outcomes, note_lo_links)
-- [x] Procedural audio engine (Web Audio API) — all 6 ambient sounds generated in real-time
+- [x] Real ambient audio (6 channels: rain, fireplace, wind, thunder, birds, brown noise)
+- [x] File attachments per note (upload to R2, download, delete)
+- [x] Workers AI: auto-extract LOs from pasted text
+- [x] Workers AI: auto-suggest note-to-LO links
+- [x] Workers AI: AI gap analysis with personalized recommendations
 
 ### Planned
-- [ ] File upload to R2 (PDF/CSV)
-- [ ] Workers AI: auto-extract LOs from documents
-- [ ] Workers AI: auto-suggest note-to-LO links
-- [ ] Workers AI: gap analysis feedback
-- [ ] Deploy to Cloudflare Pages
+- [ ] Deploy to Cloudflare Pages with production bindings
 
 ## Getting Started
 
@@ -66,8 +67,9 @@ functions/
   api/           - Cloudflare Pages Functions (Hono.js API routes)
 migrations/
   0001_initial.sql - D1 schema (notes, learning_outcomes, note_lo_links)
+  0002_files.sql   - File attachments table
 public/
-  audio/         - Ambiance sound files (to be added)
+  audio/         - 6 ambient MP3 files (CC0, from Internet Archive)
 ```
 
 ## Progress Log
@@ -75,4 +77,7 @@ public/
 - **2026-02-27**: Phase 1 complete - Full frontend scaffold with all 4 pages, ambiance mixer, note editor with LO linking, coverage dashboard with gap feedback.
 - **2026-02-27**: UI overhaul - Glassmorphism, animated backgrounds, gradient accents, dense layouts.
 - **2026-02-27**: Phase 2 complete - D1 backend with Hono.js API, CRUD for notes and LOs, many-to-many linking, API-first store with localStorage fallback.
-- **2026-02-27**: Phase 3 complete - Procedural audio engine using Web Audio API. Brown noise, rain, fireplace, wind, thunder, birds all synthesized in real-time. No audio files needed.
+- **2026-02-27**: Phase 3 complete - Procedural audio engine (later replaced with real audio files).
+- **2026-02-27**: Audio + UI overhaul - Downloaded 6 CC0 ambient MP3s from Internet Archive, replaced procedural engine with file-based playback. Complete UI redesign with card system, clean typography, consistent design language.
+- **2026-02-27**: Phase 4 complete - R2 file uploads. Attach files (PDF, CSV, docs, images) to notes. Upload, download, delete via API.
+- **2026-02-27**: Phase 5 complete - Workers AI integration. AI extract LOs from text, AI suggest note-to-LO links, AI gap analysis with personalized study recommendations.

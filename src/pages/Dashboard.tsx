@@ -1,11 +1,35 @@
-import { useMemo } from 'react'
-import { AlertTriangle, CheckCircle2, FileText, Target, TrendingUp } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import { AlertTriangle, CheckCircle2, FileText, Target, TrendingUp, Sparkles, Link2, Brain, Loader2 } from 'lucide-react'
 import { useNotes, useLearningOutcomes } from '../store/useStore'
-import type { CoverageStatus } from '../types'
+import * as api from '../lib/api'
+import type { CoverageStatus, AISuggestion } from '../types'
 
 export default function Dashboard() {
-  const { notes } = useNotes()
+  const { notes, updateNote } = useNotes()
   const { outcomes } = useLearningOutcomes()
+  const [aiLoading, setAiLoading] = useState<string | null>(null)
+  const [gapResult, setGapResult] = useState<{ summary: string; gaps: { loCode: string; suggestion: string }[]; strengths: string[] } | null>(null)
+  const [suggestions, setSuggestions] = useState<AISuggestion[]>([])
+
+  const runGapAnalysis = async () => {
+    setAiLoading('gap')
+    try { const r = await api.aiGapAnalysis(); setGapResult(r) } catch { setGapResult({ summary: 'AI not available. Deploy to Cloudflare to use Workers AI.', gaps: [], strengths: [] }) }
+    setAiLoading(null)
+  }
+
+  const runSuggestLinks = async () => {
+    setAiLoading('links')
+    try { const r = await api.aiSuggestLinks(); setSuggestions(r) } catch { setSuggestions([]) }
+    setAiLoading(null)
+  }
+
+  const acceptSuggestion = async (s: AISuggestion) => {
+    const note = notes.find(n => n.id === s.noteId)
+    if (!note) return
+    const updated = [...new Set([...note.linkedLOs, s.loId])]
+    await updateNote(note.id, { linkedLOs: updated })
+    setSuggestions(prev => prev.filter(p => !(p.noteId === s.noteId && p.loId === s.loId)))
+  }
 
   const coverage = useMemo<CoverageStatus[]>(() => {
     return outcomes.map(lo => {
@@ -142,6 +166,92 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
+            )}
+          </div>
+        </div>
+
+        {/* AI Section */}
+        <div className="flex gap-4">
+          {/* AI Gap Analysis */}
+          <div className="flex-1 card p-5 anim-fade-in">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Brain size={15} className="text-purple" />
+                <h3 className="text-sm font-bold text-lite">AI Gap Analysis</h3>
+              </div>
+              <button onClick={runGapAnalysis} disabled={aiLoading === 'gap'}
+                className="btn-primary !text-[11px] !py-1.5">
+                {aiLoading === 'gap' ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                {aiLoading === 'gap' ? 'Analyzing...' : 'Analyze'}
+              </button>
+            </div>
+            {gapResult ? (
+              <div className="space-y-3 anim-fade-in">
+                <p className="text-[12px] text-dim leading-relaxed">{gapResult.summary}</p>
+                {gapResult.gaps.length > 0 && (
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-semibold text-mute uppercase tracking-wider">Gaps</p>
+                    {gapResult.gaps.map((g, i) => (
+                      <div key={i} className="flex gap-2 text-[12px]">
+                        <span className="text-red font-semibold shrink-0">{g.loCode}</span>
+                        <span className="text-dim">{g.suggestion}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {gapResult.strengths.length > 0 && (
+                  <div>
+                    <p className="text-[10px] font-semibold text-mute uppercase tracking-wider mb-1">Strengths</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {gapResult.strengths.map(s => <span key={s} className="badge">{s}</span>)}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-[11px] text-mute">Run AI analysis to get personalized study recommendations. Requires Cloudflare Workers AI (available after deployment).</p>
+            )}
+          </div>
+
+          {/* AI Link Suggestions */}
+          <div className="w-[380px] shrink-0 card p-5 anim-fade-in">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Link2 size={15} className="text-cyan" />
+                <h3 className="text-sm font-bold text-lite">AI Link Suggestions</h3>
+              </div>
+              <button onClick={runSuggestLinks} disabled={aiLoading === 'links'}
+                className="btn-primary !text-[11px] !py-1.5">
+                {aiLoading === 'links' ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                {aiLoading === 'links' ? 'Thinking...' : 'Suggest'}
+              </button>
+            </div>
+            {suggestions.length > 0 ? (
+              <div className="space-y-1.5 max-h-[300px] overflow-y-auto">
+                {suggestions.map((s, i) => (
+                  <div key={i} className="card !rounded-lg p-3 anim-fade-in">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-[12px] font-semibold text-lite truncate">{s.noteTitle}</span>
+                      <span className="badge !text-[9px]">{s.loCode}</span>
+                    </div>
+                    <p className="text-[10px] text-mute mb-2">{s.reason}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1">
+                        <div className="w-12 h-1 bg-surface rounded-full overflow-hidden">
+                          <div className="h-full bg-cyan rounded-full" style={{ width: `${s.confidence * 100}%` }} />
+                        </div>
+                        <span className="text-[9px] text-mute">{Math.round(s.confidence * 100)}%</span>
+                      </div>
+                      <button onClick={() => acceptSuggestion(s)}
+                        className="text-[10px] font-semibold text-cyan hover:text-white transition-colors">
+                        Accept
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[11px] text-mute">AI will suggest note-to-outcome links you may have missed. Requires Workers AI.</p>
             )}
           </div>
         </div>

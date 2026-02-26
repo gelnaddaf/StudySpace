@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react'
-import { Plus, Upload, Trash2, Search, Target, FileText } from 'lucide-react'
+import { Plus, Upload, Trash2, Search, Target, FileText, Sparkles, Loader2 } from 'lucide-react'
 import { useLearningOutcomes, useNotes } from '../store/useStore'
+import * as api from '../lib/api'
+import type { AIExtractedLO } from '../types'
 
 export default function LearningOutcomes() {
   const { outcomes, addLO, deleteLO, importLOs } = useLearningOutcomes()
@@ -10,6 +12,11 @@ export default function LearningOutcomes() {
   const [description, setDescription] = useState('')
   const [subjectName, setSubjectName] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
+  const [showAIExtract, setShowAIExtract] = useState(false)
+  const [aiText, setAiText] = useState('')
+  const [aiSubject, setAiSubject] = useState('')
+  const [aiLoading, setAiLoading] = useState(false)
+  const [aiResults, setAiResults] = useState<AIExtractedLO[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const filteredOutcomes = outcomes.filter(lo =>
@@ -52,6 +59,26 @@ export default function LearningOutcomes() {
     return notes.filter(n => n.linkedLOs.includes(loId)).length
   }
 
+  const runAIExtract = async () => {
+    if (!aiText.trim()) return
+    setAiLoading(true)
+    try {
+      const results = await api.aiExtractLOs(aiText, aiSubject)
+      setAiResults(results)
+    } catch {
+      setAiResults([])
+    }
+    setAiLoading(false)
+  }
+
+  const importAIResults = () => {
+    if (aiResults.length === 0) return
+    importLOs(aiResults.map(r => ({ code: r.code, description: r.description, subjectName: r.subjectName || aiSubject })))
+    setAiResults([])
+    setAiText('')
+    setShowAIExtract(false)
+  }
+
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
@@ -63,6 +90,7 @@ export default function LearningOutcomes() {
           </div>
           <div className="flex items-center gap-2">
             <input type="file" ref={fileInputRef} accept=".csv" onChange={handleCSVUpload} className="hidden" />
+            <button onClick={() => setShowAIExtract(!showAIExtract)} className="btn-ghost"><Sparkles size={13} /> AI Extract</button>
             <button onClick={() => fileInputRef.current?.click()} className="btn-ghost"><Upload size={13} /> CSV</button>
             <button onClick={() => setShowAddForm(!showAddForm)} className="btn-primary"><Plus size={14} /> Add</button>
           </div>
@@ -84,6 +112,42 @@ export default function LearningOutcomes() {
           </div>
           <textarea placeholder="Description..." value={description} onChange={(e) => setDescription(e.target.value)} rows={2}
             className="input resize-none" />
+        </div>
+      )}
+
+      {/* AI Extract Panel */}
+      {showAIExtract && (
+        <div className="px-6 py-4 border-b border-white/[0.03] bg-dark2/40 anim-fade-in">
+          <div className="flex items-center gap-2 mb-3">
+            <Sparkles size={14} className="text-purple" />
+            <span className="text-[12px] font-semibold text-lite">AI Extract Learning Outcomes</span>
+          </div>
+          <div className="flex gap-3 mb-3">
+            <input type="text" placeholder="Subject name (optional)" value={aiSubject} onChange={(e) => setAiSubject(e.target.value)} className="input !w-48" />
+            <button onClick={runAIExtract} disabled={aiLoading || !aiText.trim()} className="btn-primary">
+              {aiLoading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
+              {aiLoading ? 'Extracting...' : 'Extract'}
+            </button>
+          </div>
+          <textarea placeholder="Paste syllabus, course outline, or any text containing learning outcomes..." value={aiText}
+            onChange={(e) => setAiText(e.target.value)} rows={4} className="input resize-none mb-3" />
+          {aiResults.length > 0 && (
+            <div className="space-y-2 anim-fade-in">
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] text-dim font-semibold">{aiResults.length} outcomes extracted</p>
+                <button onClick={importAIResults} className="btn-primary !text-[11px] !py-1.5">Import All</button>
+              </div>
+              <div className="space-y-1 max-h-[200px] overflow-y-auto">
+                {aiResults.map((r, i) => (
+                  <div key={i} className="card !rounded-lg p-2.5 flex items-start gap-2">
+                    <span className="text-[11px] font-bold text-purplehi shrink-0">{r.code}</span>
+                    <p className="text-[11px] text-dim">{r.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <p className="text-[10px] text-mute mt-2">Powered by Cloudflare Workers AI. Available after deployment.</p>
         </div>
       )}
 

@@ -1,9 +1,10 @@
-import { useState } from 'react'
-import { Plus, Search, FileText, Trash2, Edit3, Link2 } from 'lucide-react'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { Plus, Search, FileText, Trash2, Edit3, Link2, Paperclip, Download, X, Upload } from 'lucide-react'
 import { useNotes, useLearningOutcomes } from '../store/useStore'
 import NoteEditor from '../components/NoteEditor'
 import ReactMarkdown from 'react-markdown'
-import type { Note } from '../types'
+import * as api from '../lib/api'
+import type { Note, FileAttachment } from '../types'
 
 export default function Notes() {
   const { notes, addNote, updateNote, deleteNote } = useNotes()
@@ -12,6 +13,40 @@ export default function Notes() {
   const [isCreating, setIsCreating] = useState(false)
   const [selectedNote, setSelectedNote] = useState<Note | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [files, setFiles] = useState<FileAttachment[]>([])
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const loadFiles = useCallback(async (noteId: string) => {
+    try { const f = await api.fetchFiles(noteId); setFiles(f) } catch { setFiles([]) }
+  }, [])
+
+  useEffect(() => {
+    if (selectedNote) loadFiles(selectedNote.id)
+    else setFiles([])
+  }, [selectedNote, loadFiles])
+
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !selectedNote) return
+    setUploading(true)
+    try {
+      const f = await api.uploadFile(selectedNote.id, file)
+      setFiles(prev => [f, ...prev])
+    } catch { /* API not available */ }
+    setUploading(false)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  const handleDeleteFile = async (fileId: string) => {
+    try { await api.deleteFile(fileId); setFiles(prev => prev.filter(f => f.id !== fileId)) } catch {}
+  }
+
+  const formatSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`
+    if (bytes < 1048576) return `${(bytes / 1024).toFixed(1)} KB`
+    return `${(bytes / 1048576).toFixed(1)} MB`
+  }
 
   const filteredNotes = notes.filter(n =>
     n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -111,6 +146,47 @@ export default function Notes() {
 
               <div className="prose prose-invert prose-sm max-w-none text-dim leading-relaxed">
                 <ReactMarkdown>{selectedNote.content || '*No content*'}</ReactMarkdown>
+              </div>
+
+              {/* File Attachments */}
+              <div className="mt-6 pt-5 border-t border-white/[0.03]">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Paperclip size={13} className="text-mute" />
+                    <span className="text-[12px] font-semibold text-dim">Attachments</span>
+                    {files.length > 0 && <span className="badge !text-[9px]">{files.length}</span>}
+                  </div>
+                  <div>
+                    <input type="file" ref={fileInputRef} onChange={handleUpload} className="hidden" accept=".pdf,.csv,.txt,.md,.doc,.docx,.png,.jpg" />
+                    <button onClick={() => fileInputRef.current?.click()} disabled={uploading}
+                      className="btn-ghost !text-[11px] !py-1.5 !px-3">
+                      <Upload size={11} /> {uploading ? 'Uploading...' : 'Upload'}
+                    </button>
+                  </div>
+                </div>
+                {files.length > 0 ? (
+                  <div className="space-y-1">
+                    {files.map(f => (
+                      <div key={f.id} className="flex items-center gap-3 p-2.5 card !rounded-lg group">
+                        <FileText size={14} className="text-purple shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[12px] text-dim font-medium truncate">{f.filename}</p>
+                          <p className="text-[10px] text-mute">{formatSize(f.sizeBytes)}</p>
+                        </div>
+                        <a href={api.getFileDownloadUrl(f.id)} target="_blank" rel="noreferrer"
+                          className="p-1.5 text-mute hover:text-cyan rounded-lg transition-colors opacity-0 group-hover:opacity-100">
+                          <Download size={12} />
+                        </a>
+                        <button onClick={() => handleDeleteFile(f.id)}
+                          className="p-1.5 text-mute hover:text-red rounded-lg transition-colors opacity-0 group-hover:opacity-100">
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-mute">No files attached. Upload PDFs, CSVs, or documents.</p>
+                )}
               </div>
             </div>
           ) : (
