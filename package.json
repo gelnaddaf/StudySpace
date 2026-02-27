@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:full": "wrangler pages dev --proxy 5173 --persist-to .wrangler/state",
+    "dev:full": "wrangler dev --persist-to .wrangler/state",
+    "deploy": "npm run build && wrangler deploy",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",

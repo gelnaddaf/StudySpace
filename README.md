@@ -35,8 +35,10 @@ A customizable study environment web app with ambient sounds, note-taking, learn
 - [x] Workers AI: auto-suggest note-to-LO links
 - [x] Workers AI: AI gap analysis with personalized recommendations
 
-### Planned
-- [ ] Deploy to Cloudflare Pages with production bindings
+- [x] Deployed to Cloudflare Workers with static assets
+
+### Live
+- **https://stuproject.george-elnaddaf.workers.dev**
 
 ## Getting Started
 
@@ -46,12 +48,15 @@ npm install
 # Frontend only (localStorage mode)
 npm run dev
 
-# Full stack with D1 backend (run Vite first, then this)
+# Full stack with D1/R2/AI backend
 npm run dev          # Terminal 1: starts Vite on port 5173
-npm run dev:full     # Terminal 2: wrangler proxies to Vite + provides D1
+npm run dev:full     # Terminal 2: wrangler dev (Worker + D1 + R2 + AI)
 
 # Run D1 migration locally
 npm run migrate:local
+
+# Build and deploy to Cloudflare
+npm run deploy
 ```
 
 ## Project Structure
@@ -63,8 +68,8 @@ src/
   store/         - State management hooks with API + localStorage fallback
   lib/           - API client (fetch wrapper for D1 endpoints)
   types/         - TypeScript interfaces
-functions/
-  api/           - Cloudflare Pages Functions (Hono.js API routes)
+worker/
+  index.ts       - Cloudflare Worker entry point (Hono.js API routes)
 migrations/
   0001_initial.sql - D1 schema (notes, learning_outcomes, note_lo_links)
   0002_files.sql   - File attachments table
@@ -81,3 +86,4 @@ public/
 - **2026-02-27**: Audio + UI overhaul - Downloaded 6 CC0 ambient MP3s from Internet Archive, replaced procedural engine with file-based playback. Complete UI redesign with card system, clean typography, consistent design language.
 - **2026-02-27**: Phase 4 complete - R2 file uploads. Attach files (PDF, CSV, docs, images) to notes. Upload, download, delete via API.
 - **2026-02-27**: Phase 5 complete - Workers AI integration. AI extract LOs from text, AI suggest note-to-LO links, AI gap analysis with personalized study recommendations.
+- **2026-02-27**: Phase 6 complete - Deployed to Cloudflare Workers with static assets. Production D1, R2 bucket, and Workers AI all bound. Live at stuproject.george-elnaddaf.workers.dev.

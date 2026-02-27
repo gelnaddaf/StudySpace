@@ -1,11 +1,15 @@
 name = "stuproject"
+main = "worker/index.ts"
 compatibility_date = "2024-12-01"
-pages_build_output_dir = "./dist"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./dist"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "stuproject-db"
-database_id = ""
+database_id = "2cf25e07-cf29-4997-9cc4-c72bc4acf134"
 
 [[r2_buckets]]
 binding = "BUCKET"
